@@ -1,5 +1,8 @@
 package gui.frames;
 
+import da.DataAccessConfig;
+import da.TaskDao;
+import entities.Task;
 import gui.core.TodoList;
 
 import javax.swing.*;
@@ -8,13 +11,16 @@ import javax.swing.event.ListDataListener;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 import static javax.swing.BorderFactory.createEmptyBorder;
 import static javax.swing.Box.createVerticalStrut;
 
 public class MainWindow extends JFrame{
 	private static final long serialVersionUID = 1L;
-	
+	TaskDao taskDao = new TaskDao(DataAccessConfig.getSessionFactory());
+
+
 	private JPanel mainContentPane;
 	private JPanel newTaskControls;
 	private JButton addTaskButton;
@@ -121,7 +127,12 @@ public class MainWindow extends JFrame{
 			deleteButton.addMouseListener(new MouseAdapter(){
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					todoListModel.removeAt(getTaskList().getSelectedIndex());
+					int selectedIndex = getTaskList().getSelectedIndex();
+					if (selectedIndex != -1){
+						String task = todoListModel.getElementAt(selectedIndex);
+						todoListModel.removeAt(selectedIndex);
+						taskDao.delete(task);
+					}
 				}
 			});
 		}
@@ -138,8 +149,10 @@ public class MainWindow extends JFrame{
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					if (getNewTaskField().getText().length() > 0) {
-						todoListModel.add(getNewTaskField().getText().trim());
-						
+						String task = getNewTaskField().getText().trim();
+						todoListModel.add(task);
+						taskDao.save(task);
+
 						getNewTaskField().setText("");
 						
 						getTaskList().setSelectedIndex(getTaskList().getModel().getSize()-1);
@@ -178,5 +191,12 @@ public class MainWindow extends JFrame{
 		return new ImageIcon(
 				getClass().
 				getResource("/"+iconfilename));
+	}
+
+	public void initialize(List<Task> tasks){
+		for (Task task : tasks) {
+			todoListModel.add(task.getTask());
+			getNewTaskField().setText("");
+		}
 	}
 }

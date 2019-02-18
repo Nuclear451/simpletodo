@@ -1,9 +1,13 @@
 package gui.core;
 
-import java.util.*;
+import da.DataAccessConfig;
+import da.TaskDao;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class TodoList implements Iterable<String>{
-
 	private List<String> list = new ArrayList<>();
 
 	public void add(String item) {

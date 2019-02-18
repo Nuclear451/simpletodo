@@ -1,16 +1,22 @@
 package gui;
 
+import da.DataAccessConfig;
+import da.TaskDao;
 import gui.frames.MainWindow;
 
 import javax.swing.*;
 
 public class FrameRunner {
+    private final static TaskDao taskDao = new TaskDao(DataAccessConfig.getSessionFactory());
+
     public static void run(){
         configureLookAndFeel();
 
         MainWindow window = new MainWindow();
         window.setLocationRelativeTo( null );
         window.setVisible(true);
+
+        window.initialize(taskDao.getAll());
     }
 
 
